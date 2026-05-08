@@ -1,0 +1,23 @@
+{
+	email {$CADDY_EMAIL}
+}
+
+{$SCRIPTORIUM_DOMAIN} {
+	encode zstd gzip
+	reverse_proxy nodered:1880
+}
+
+{$SCRIPTORIUM_ADMIN_DOMAIN} {
+	encode zstd gzip
+	reverse_proxy nodered:1880
+}
+
+{$SCRIPTORIUM_MCP_DOMAIN} {
+	encode zstd gzip
+	reverse_proxy mcp-devops:3003
+}
+
+{$SCRIPTORIUM_NPM_DOMAIN} {
+	encode zstd gzip
+	reverse_proxy verdaccio:4873
+}

@@ -1,0 +1,61 @@
+name: scriptorium-vps
+
+services:
+  caddy:
+    image: caddy:2.8-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - /srv/scriptorium/caddy/data:/data
+      - /srv/scriptorium/caddy/config:/config
+    depends_on:
+      - nodered
+      - mcp-devops
+      - verdaccio
+
+  nodered:
+    image: nodered/node-red:latest
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    environment:
+      TZ: "${SCRIPTORIUM_TZ:-UTC}"
+      SCRIPTORIUM_UID: "${SCRIPTORIUM_UID:-1000}"
+      SCRIPTORIUM_GID: "${SCRIPTORIUM_GID:-1000}"
+      NODE_RED_ENABLE_PROJECTS: "true"
+    volumes:
+      - ../node-red-projects:/data/projects
+      - /srv/scriptorium/ARCHIVO:/data/ARCHIVO
+      - /srv/scriptorium/ARCHIVO/DISCO:/data/ARCHIVO/DISCO
+      - ./nodered:/workspace/nodered-pattern:ro
+
+  mcp-devops:
+    image: node:22-alpine
+    restart: unless-stopped
+    working_dir: /workspace
+    command: >
+      sh -lc "echo 'TODO VPS-05: sustituir este placeholder por el bootstrap real de MCPDevOpsServer'; tail -f /dev/null"
+    env_file:
+      - ../.env
+    environment:
+      PORT: "3003"
+      MCP_TRANSPORT: "streamable-http"
+    volumes:
+      - ./mcp-mesh:/workspace/pattern:ro
+      - /srv/scriptorium/ARCHIVO/PLUGINS/MCP_DATA/devops-mcp-server:/workspace/devops-data
+
+  verdaccio:
+    image: verdaccio/verdaccio:latest
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    volumes:
+      - ./verdaccio/config.yaml:/verdaccio/conf/config.yaml:ro
+      - /srv/scriptorium/verdaccio/storage:/verdaccio/storage
+
+networks:
+  default:
+    name: scriptorium-vps
