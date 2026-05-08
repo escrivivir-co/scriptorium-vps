@@ -2,22 +2,76 @@
 	email {$CADDY_EMAIL}
 }
 
+# Perfil LOCAL/STANDALONE del edge de ScriptoriumVps.
+# En producción compartida con BlockchainComPort/OASIS_PUB NO debe levantarse este Caddy
+# porque `pub-web` ya conserva la propiedad de 80/443.
+
 {$SCRIPTORIUM_DOMAIN} {
 	encode zstd gzip
+
+	header {
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+	}
+
+	@health path /healthz
+	handle @health {
+		respond "scriptorium standalone public edge ok" 200
+	}
+
 	reverse_proxy nodered:1880
 }
 
 {$SCRIPTORIUM_ADMIN_DOMAIN} {
 	encode zstd gzip
+
+	header {
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		X-Robots-Tag noindex, nofollow, noarchive
+	}
+
+	@health path /healthz
+	handle @health {
+		respond "scriptorium standalone admin edge ok" 200
+	}
+
+	basic_auth {
+		{$NODERED_ADMIN_USER:admin} {$NODERED_ADMIN_PASSWORD_BCRYPT}
+	}
+
 	reverse_proxy nodered:1880
 }
 
 {$SCRIPTORIUM_MCP_DOMAIN} {
 	encode zstd gzip
+
+	header {
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+	}
+
+	@health path /healthz
+	handle @health {
+		respond "scriptorium standalone mcp edge ok" 200
+	}
+
 	reverse_proxy mcp-devops:3003
 }
 
 {$SCRIPTORIUM_NPM_DOMAIN} {
 	encode zstd gzip
+
+	header {
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		X-Robots-Tag noindex
+	}
+
+	@health path /healthz
+	handle @health {
+		respond "scriptorium standalone npm edge ok" 200
+	}
+
 	reverse_proxy verdaccio:4873
 }

@@ -3,6 +3,7 @@ name: scriptorium-vps
 services:
   caddy:
     image: caddy:2.8-alpine
+    profiles: ["standalone"]
     restart: unless-stopped
     ports:
       - "80:80"
@@ -31,6 +32,11 @@ services:
       - /srv/scriptorium/ARCHIVO:/data/ARCHIVO
       - /srv/scriptorium/ARCHIVO/DISCO:/data/ARCHIVO/DISCO
       - ./nodered:/workspace/nodered-pattern:ro
+    networks:
+      default: {}
+      oasis_pub_net:
+        aliases:
+          - scriptorium-nodered
 
   mcp-devops:
     image: node:22-alpine
@@ -46,6 +52,11 @@ services:
     volumes:
       - ./mcp-mesh:/workspace/pattern:ro
       - /srv/scriptorium/ARCHIVO/PLUGINS/MCP_DATA/devops-mcp-server:/workspace/devops-data
+    networks:
+      default: {}
+      oasis_pub_net:
+        aliases:
+          - scriptorium-mcp-devops
 
   verdaccio:
     image: verdaccio/verdaccio:latest
@@ -55,7 +66,15 @@ services:
     volumes:
       - ./verdaccio/config.yaml:/verdaccio/conf/config.yaml:ro
       - /srv/scriptorium/verdaccio/storage:/verdaccio/storage
+    networks:
+      default: {}
+      oasis_pub_net:
+        aliases:
+          - scriptorium-verdaccio
 
 networks:
   default:
     name: scriptorium-vps
+  oasis_pub_net:
+    external: true
+    name: oasis-pub-scriptorium_oasis_pub_net

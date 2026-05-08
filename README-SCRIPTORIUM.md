@@ -31,18 +31,22 @@ El plugin `.github/plugins/scriptorium-vps/` describe los agentes operativos que
 - `ARCHIVO/PLUGINS/MCP_DATA/devops-mcp-server/` → persistencia real del DevOps MCP ya existente
 - `ARCHIVO/PLUGINS/MCP_PRESETS/` → presets/launcher reutilizables por la mesh MCP
 - `/srv/scriptorium/ARCHIVO` y `/srv/scriptorium/ARCHIVO/DISCO` → volúmenes shared del VPS
+- `BlockchainComPort/OASIS_PUB/` → edge productivo compartido del MVP (`pub-web`)
+- `BlockchainComPort/GANDI_DEVOPS_FOLDER/` → carpeta segura deny-by-default para SSH, snapshots e inventarios operativos
 
 ## Reglas de integración
 
 1. No guardar secretos reales en el submódulo.
 2. Mantener `README-SCRIPTORIUM.md` actualizado cuando cambien rutas o contratos con el workspace padre.
-3. Exponer al host solo Caddy (`80/443`); el resto del patrón opera detrás del proxy.
+3. En producción compartida del MVP, no levantar un segundo Caddy para `80/443`: el edge productivo es `pub-web` de `BlockchainComPort/OASIS_PUB`.
 4. Tratar `node-red-projects/` como monorepo: cada subcarpeta podrá ser un project nativo de Node-RED.
 5. Mantener la rama `integration/beta/scriptorium` como rama de integración por defecto.
+6. Conectar los servicios nuevos a la red Docker externa `oasis-pub-scriptorium_oasis_pub_net` con aliases `scriptorium-nodered`, `scriptorium-mcp-devops` y `scriptorium-verdaccio`.
+7. Mantener cualquier operación real sobre DNS, Gandi, SSH/SCP, Docker remoto y VPS vivo fuera de este submódulo hasta aprobación expresa del PO.
 
 ## Validación mínima
 
 - El submódulo figura en `.gitmodules` con path `ScriptoriumVps`.
 - Existe `.env.example` con placeholders seguros.
-- `PATTERN-DOCKER/docker-compose.yml` describe el arranque inicial sin publicar puertos directos salvo Caddy.
+- `PATTERN-DOCKER/docker-compose.yml` describe el arranque inicial y la topología edge compartida sin publicar `1880`, `3003` ni `4873` al host.
 - `node-red-projects/.gitkeep` existe como ancla del monorepo.
