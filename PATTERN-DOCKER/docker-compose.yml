@@ -18,20 +18,43 @@ services:
       - verdaccio
 
   nodered:
-    image: nodered/node-red:latest
+    build:
+      context: ../..
+      dockerfile: ScriptoriumVps/PATTERN-DOCKER/nodered/Dockerfile
+      args:
+        NODERED_BASE_IMAGE: ${NODERED_BASE_IMAGE:-nodered/node-red:latest}
+    image: scriptorium-vps-nodered:latest
     restart: unless-stopped
     env_file:
       - ../.env
     environment:
+      PORT: "1880"
       TZ: "${SCRIPTORIUM_TZ:-UTC}"
       SCRIPTORIUM_UID: "${SCRIPTORIUM_UID:-1000}"
       SCRIPTORIUM_GID: "${SCRIPTORIUM_GID:-1000}"
       NODE_RED_ENABLE_PROJECTS: "true"
+      NODE_RED_USER_DIR: "/data"
+      NODERED_CREDENTIAL_SECRET: "${NODERED_CREDENTIAL_SECRET:?Set NODERED_CREDENTIAL_SECRET in ScriptoriumVps/.env}"
+      NODERED_ADMIN_ROOT: "/red"
+      NODERED_HTTP_NODE_ROOT: "/"
+      NODERED_CLASSIC_DASHBOARD_PATH: "/ui"
+      NODERED_DASHBOARD2_PATH: "/dashboard"
+      NODERED_PROJECTS_DIR: "/data/projects"
+      NODERED_PROJECTS_WORKFLOW_MODE: "${NODERED_PROJECTS_WORKFLOW_MODE:-manual}"
+      NODERED_DEFAULT_PERMISSIONS: "read"
+      NODERED_VIEWER_ENABLED: "${NODERED_VIEWER_ENABLED:-true}"
+      NODERED_LOG_LEVEL: "${NODERED_LOG_LEVEL:-info}"
     volumes:
       - ../node-red-projects:/data/projects
       - /srv/scriptorium/ARCHIVO:/data/ARCHIVO
       - /srv/scriptorium/ARCHIVO/DISCO:/data/ARCHIVO/DISCO
-      - ./nodered:/workspace/nodered-pattern:ro
+      - ./nodered:/opt/aleph/node-red-pattern:ro
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:1880/red/', (res) => process.exit(res.statusCode < 500 ? 0 : 1)).on('error', () => process.exit(1))\""]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
     networks:
       default: {}
       oasis_pub_net:
@@ -39,19 +62,35 @@ services:
           - scriptorium-nodered
 
   mcp-devops:
-    image: node:22-alpine
+    build:
+      context: ../..
+      dockerfile: ScriptoriumVps/PATTERN-DOCKER/mcp-mesh/Dockerfile
+    image: scriptorium-vps-mcp-devops:latest
     restart: unless-stopped
-    working_dir: /workspace
-    command: >
-      sh -lc "echo 'TODO VPS-05: sustituir este placeholder por el bootstrap real de MCPDevOpsServer'; tail -f /dev/null"
     env_file:
       - ../.env
     environment:
       PORT: "3003"
       MCP_TRANSPORT: "streamable-http"
+      MCP_DEVOPS_GATEWAY_PORT: "3003"
+      MCP_DEVOPS_INTERNAL_PORT: "${MCP_DEVOPS_INTERNAL_PORT:-3004}"
+      MCP_SERVER_PORT: "${MCP_DEVOPS_INTERNAL_PORT:-3004}"
+      MCP_DEVOPS_BEARER_TOKEN: "${MCP_DEVOPS_BEARER_TOKEN:?Set MCP_DEVOPS_BEARER_TOKEN in ScriptoriumVps/.env}"
+      MCP_DEVOPS_SCOPES: "${MCP_DEVOPS_SCOPES:-devops:read,devops:write-definitions,devops:delete-definitions}"
+      MCP_DEVOPS_PUBLIC_URL: "${MCP_DEVOPS_PUBLIC_URL:-https://mcp.scriptorium.escrivivir.co/mcp}"
+      MCP_DEVOPS_DATA_MOUNT: "/workspace/devops-data"
+      MCP_DEVOPS_AUDIT_DIR: "/workspace/audit"
+      DEVOPS_ROOM_PLUGIN_ENABLED: "false"
+      XPLUS1_PLUGIN_DISABLED: "true"
     volumes:
-      - ./mcp-mesh:/workspace/pattern:ro
       - /srv/scriptorium/ARCHIVO/PLUGINS/MCP_DATA/devops-mcp-server:/workspace/devops-data
+      - /srv/scriptorium/ARCHIVO/PLUGINS/SCRIPTORIUM_VPS/audit:/workspace/audit
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:3003/health').then((res)=>process.exit(res.ok?0:1)).catch(()=>process.exit(1))\""]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
     networks:
       default: {}
       oasis_pub_net:
@@ -63,9 +102,18 @@ services:
     restart: unless-stopped
     env_file:
       - ../.env
+    environment:
+      VERDACCIO_PORT: "4873"
+      VERDACCIO_PUBLIC_URL: "${VERDACCIO_PUBLIC_URL:-https://npm.scriptorium.escrivivir.co}"
     volumes:
       - ./verdaccio/config.yaml:/verdaccio/conf/config.yaml:ro
       - /srv/scriptorium/verdaccio/storage:/verdaccio/storage
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:4873/-/ping').then((res)=>process.exit(res.ok?0:1)).catch(()=>process.exit(1))\""]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 25s
     networks:
       default: {}
       oasis_pub_net:

@@ -1,0 +1,40 @@
+{
+  "registryPackages": [
+    "@flowfuse/node-red-dashboard",
+    "node-red-dashboard"
+  ],
+  "workspacePackages": [
+    {
+      "name": "node-red-contrib-alephscript",
+      "source": "/opt/aleph/WiringEditor/packages/node-red-contrib-alephscript",
+      "buildCommand": "npm run build:full",
+      "smokeFiles": [
+        "dist/index.js",
+        "dist/nodes/bot-node.js"
+      ]
+    },
+    {
+      "name": "node-red-contrib-alephscript-firehose",
+      "source": "/opt/aleph/WiringEditor/packages/node-red-contrib-alephscript-firehose",
+      "buildCommand": "npm run build:full",
+      "smokeFiles": [
+        "dist/index.js",
+        "dist/nodes/firehose-consumer.js"
+      ]
+    },
+    {
+      "name": "node-red-dashboard-2-alephscript-escribiente",
+      "source": "/opt/aleph/WiringEditor/packages/node-red-contrib-alephscript-escribiente",
+      "buildCommand": "npm run build:full",
+      "smokeFiles": [
+        "dist/index.js",
+        "dist/nodes/escribiente-dashboard-recorder.js",
+        "resources/escribiente-dashboard-recorder.umd.js"
+      ]
+    }
+  ],
+  "notes": [
+    "Los paquetes del monorepo se construyen y validan por manifiesto antes de instalarse en /data; ninguno recibe trato especial.",
+    "El escribiente entra exactamente igual que el resto: aparece en el manifiesto y no como excepción hardcodeada."
+  ]
+}

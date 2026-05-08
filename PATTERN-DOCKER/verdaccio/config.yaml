@@ -1,22 +1,31 @@
 storage: /verdaccio/storage
+listen: 0.0.0.0:4873
+
+web:
+  title: Aleph Scriptorium Registry
+  darkMode: true
 
 auth:
   htpasswd:
     file: /verdaccio/storage/htpasswd
+    max_users: -1
 
 uplinks:
   npmjs:
     url: https://registry.npmjs.org/
+    cache: true
 
 packages:
   "@alephscript/*":
     access: $all
     publish: $authenticated
+    unpublish: $authenticated
     proxy: npmjs
 
-  "node-red-contrib-alephscript-*":
+  "node-red-contrib-alephscript*":
     access: $all
     publish: $authenticated
+    unpublish: $authenticated
     proxy: npmjs
 
   "**":
@@ -27,9 +36,16 @@ packages:
 server:
   keepAliveTimeout: 60
 
+security:
+  api:
+    legacy: false
+  web:
+    sign:
+      expiresIn: 7d
+
 middlewares:
   audit:
     enabled: true
 
-logs:
+log:
   - { type: stdout, format: pretty, level: http }

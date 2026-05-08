@@ -1,0 +1,9 @@
+registry=https://registry.npmjs.org/
+@alephscript:registry=https://npm.scriptorium.escrivivir.co/
+//npm.scriptorium.escrivivir.co/:_authToken=${VERDACCIO_NPM_TOKEN}
+//npm.scriptorium.escrivivir.co/:always-auth=true
+always-auth=true
+
+# Para paquetes Node-RED sin scope, publicar/instalar con:
+# npm publish --registry https://npm.scriptorium.escrivivir.co/
+# npm install node-red-contrib-alephscript --registry https://npm.scriptorium.escrivivir.co/

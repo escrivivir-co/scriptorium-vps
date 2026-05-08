@@ -14,7 +14,15 @@ Este directorio deja preparada la superficie del contenedor único `nodered` que
 
 ## Qué falta materializar en tareas posteriores
 
-- `settings.js` definitivo con `adminAuth`
-- manifiesto de contribs del monorepo
 - flows y projects iniciales
-- smoke tests del contenedor y de los dashboards
+- smoke tests reales del contenedor y de los dashboards durante ventana controlada
+
+## Artefactos integrados
+
+- `Dockerfile` construye la imagen Node-RED a partir de `NODERED_BASE_IMAGE`.
+- `settings.js` fija `/red`, `/ui`, `/dashboard`, `adminAuth.default=read` y admin `permissions="*"`.
+- `node-red-contribs.json` declara contribs de registry y paquetes del monorepo.
+- `build-local-contribs.mjs` compila paquetes locales y valida smoke files antes de instalar.
+- `install-contribs.mjs` instala solo si los artefactos compilados existen.
+
+El diseño sigue sin publicar `1880` al host; la exposición pública pasa por el edge definido en `VPS-03`.

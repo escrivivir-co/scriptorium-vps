@@ -1,0 +1,85 @@
+{
+  "registry": "https://npm.scriptorium.escrivivir.co/",
+  "defaultMode": "dry-run",
+  "packages": [
+    {
+      "id": "mcp-core-sdk",
+      "workspaceRelativeSource": "MCPGallery/mcp-core-sdk",
+      "publishName": "@alephscript/mcp-core-sdk",
+      "buildCommand": "npm run build",
+      "smokeFiles": [
+        "dist/index.js"
+      ],
+      "supportFiles": []
+    },
+    {
+      "id": "mcp-mesh-sdk",
+      "workspaceRelativeSource": "MCPGallery/mcp-mesh-sdk",
+      "publishName": "@alephscript/mcp-mesh-sdk",
+      "buildCommand": "npm run build",
+      "dependencyOverrides": {
+        "@alephscript/mcp-core-sdk": "^1.3.0"
+      },
+      "smokeFiles": [
+        "dist/index.js"
+      ],
+      "supportFiles": [
+        "MCPGallery/mcp-core-sdk/alephscript-mcp-core-sdk-1.3.0.tgz"
+      ]
+    },
+    {
+      "id": "node-red-contrib-alephscript",
+      "workspaceRelativeSource": "WiringEditor/packages/node-red-contrib-alephscript",
+      "publishName": "node-red-contrib-alephscript",
+      "buildCommand": "npm run build:full",
+      "dependencyOverrides": {
+        "@alephscript/mcp-core-sdk": "^1.3.0"
+      },
+      "smokeFiles": [
+        "dist/index.js",
+        "dist/nodes/bot-node.js"
+      ],
+      "supportFiles": [
+        "MCPGallery/mcp-core-sdk/alephscript-mcp-core-sdk-1.3.0.tgz"
+      ]
+    },
+    {
+      "id": "node-red-contrib-alephscript-firehose",
+      "workspaceRelativeSource": "WiringEditor/packages/node-red-contrib-alephscript-firehose",
+      "publishName": "node-red-contrib-alephscript-firehose",
+      "buildCommand": "npm run build:full",
+      "dependencyOverrides": {
+        "@alephscript/mcp-core-sdk": "^1.3.0"
+      },
+      "smokeFiles": [
+        "dist/index.js",
+        "dist/nodes/firehose-consumer.js"
+      ],
+      "supportFiles": [
+        "MCPGallery/mcp-core-sdk/alephscript-mcp-core-sdk-1.3.0.tgz"
+      ]
+    },
+    {
+      "id": "node-red-dashboard-2-alephscript-escribiente",
+      "workspaceRelativeSource": "WiringEditor/packages/node-red-contrib-alephscript-escribiente",
+      "publishName": "node-red-dashboard-2-alephscript-escribiente",
+      "buildCommand": "npm run build:full",
+      "dependencyOverrides": {
+        "@alephscript/mcp-core-sdk": "^1.3.0"
+      },
+      "smokeFiles": [
+        "dist/index.js",
+        "dist/nodes/escribiente-dashboard-recorder.js",
+        "resources/escribiente-dashboard-recorder.umd.js"
+      ],
+      "supportFiles": [
+        "MCPGallery/mcp-core-sdk/alephscript-mcp-core-sdk-1.3.0.tgz"
+      ]
+    },
+    {
+      "id": "mcp-channels-sdk",
+      "status": "blocked",
+      "reason": "MCPGallery/mcp-channels-sdk/ws-server/package.json es un monorepo private=true; no existe todavía un paquete único publicable como @alephscript/mcp-channels-sdk."
+    }
+  ]
+}

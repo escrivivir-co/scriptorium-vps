@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "default-server": {
+      "type": "streamable-http",
+      "url": "https://mcp.scriptorium.escrivivir.co/mcp",
+      "headers": {
+        "Authorization": "Bearer CHANGE_ME_TOKEN"
+      }
+    }
+  }
+}

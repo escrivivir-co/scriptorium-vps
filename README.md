@@ -21,7 +21,15 @@ Este repositorio concentra el patrón inicial para publicar cuatro superficies b
 
 ## Estado
 
-Este scaffold deja lista la estructura de arranque. Las implementaciones profundas de DNS/Caddy, Node-RED, MCP DevOps, Verdaccio y volúmenes se completan en tareas posteriores del dossier.
+Este scaffold deja lista la estructura de arranque y los patrones locales de los servicios principales:
+
+- DNS/Caddy se modela contra el edge compartido `OASIS_PUB` mediante snippet y red externa.
+- Node-RED se modela como contenedor único con `/red`, `/ui`, `/dashboard`, projects y contribs por manifiesto.
+- MCP DevOps se modela con gateway Streamable HTTP + Bearer delante de `DevOpsServer`.
+- Verdaccio se modela como registry público con auth `htpasswd`, scope `@alephscript/*` y pipeline de publicación en `dry-run`.
+- Volúmenes/SFTP usan helpers y variables `SCRIPTORIUM_SSH_*`/`SCRIPTORIUM_REMOTE_ROOT`.
+
+Las validaciones en vivo, DNS real, Docker remoto y publicación real quedan bloqueadas hasta ventana controlada de Aleph con aprobación explícita del PO.
 
 ## Estructura
 
