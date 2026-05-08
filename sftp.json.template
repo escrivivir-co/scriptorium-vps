@@ -1,0 +1,25 @@
+{
+  "name": "Scriptorium VPS",
+  "host": "${env:SCRIPTORIUM_SSH_HOST}",
+  "protocol": "sftp",
+  "port": "${env:SCRIPTORIUM_SSH_PORT}",
+  "username": "${env:SCRIPTORIUM_SSH_USER}",
+  "privateKeyPath": "${env:SCRIPTORIUM_SSH_KEY_PATH}",
+  "passphrase": "${env:SCRIPTORIUM_SSH_KEY_PASSPHRASE}",
+  "remotePath": "${env:SCRIPTORIUM_REMOTE_ROOT}",
+  "uploadOnSave": false,
+  "useTempFile": false,
+  "openSsh": false,
+  "ignore": [
+    ".git",
+    ".gitkeep",
+    "node_modules",
+    ".env",
+    "*.secret"
+  ],
+  "watcher": {
+    "files": false,
+    "autoUpload": false,
+    "autoDelete": false
+  }
+}
