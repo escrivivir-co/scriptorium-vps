@@ -20,6 +20,7 @@
 #   3. Escribe .npmrc apuntando al registry @alephscript (Verdaccio público)
 #   4. npm install de los dos contribs del MVP
 #   5. Copia pub-room-client.flow.json al directorio Node-RED
+#      (el flow usa $(ROOMS_SECRET), $(ROOMS_ROOM), $(ROOMS_USER))
 #   6. Escribe .env.rooms con las variables de sesión (fuera de git)
 #   7. Instrucciones para arrancar Node-RED con las variables
 #
@@ -146,9 +147,9 @@ echo "OK contribs instalados"
 echo ""
 FLOW_DST="$NR_HOME/flows_pub-room-client.json"
 if [ -f "$FLOW_SRC" ]; then
-  # Inyectar valores de usuario/room directamente en el flow JSON
-  # Los campos authToken/authRoom/authUser quedan VACÍOS en el JSON del repo;
-  # el nodo lee las env vars ROOMS_SECRET, ROOMS_ROOM, ROOMS_USER al arrancar.
+  # El flow del repo no contiene secretos: usa sustitución de entorno Node-RED
+  # con $(ROOMS_SECRET), $(ROOMS_ROOM), $(ROOMS_USER). Arranca Node-RED tras
+  # hacer source de .env.rooms para que el runtime sustituya esos valores.
   cp "$FLOW_SRC" "$FLOW_DST"
   echo "Flow copiado → $FLOW_DST"
   echo "(carga desde Node-RED admin: Import → fichero → selecciona flows_pub-room-client.json)"
