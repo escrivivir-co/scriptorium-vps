@@ -280,6 +280,7 @@ ROOMS_SECRET=<secret> node -e "
 Desde `ScriptoriumVps/`:
 
 ```bash
+bash scripts/check_alive.sh --public
 bash scripts/verify-dns.sh
 bash scripts/verify-caddy.sh
 bash scripts/verify-nodered.sh
@@ -287,6 +288,22 @@ bash scripts/verify-mcp-devops.sh
 bash scripts/verify-verdaccio.sh
 bash scripts/verify.sh
 ```
+
+### Check alive / cierre rápido
+
+`scripts/check_alive.sh` es el comando ligero para cierre de sesión Ops:
+
+```bash
+# Solo endpoints públicos; no requiere SSH ni secretos
+bash scripts/check_alive.sh --public
+
+# Endpoints públicos + Docker/health interno por SSH read-only
+SCRIPTORIUM_ALLOW_REMOTE_READ=YES_READ_VPS bash scripts/check_alive.sh --all
+```
+
+Qué promete: confirmar que `pub.`, `scriptorium.`, `admin.`, `mcp.`, `npm.` y `rooms.` responden; y, en modo remoto, que los contenedores clave están arriba y que `rooms:3010/healthz` responde desde Node-RED y desde `pub-web`.
+
+Qué **no** promete: demostrar idle real, ausencia criptográfica de peers, salud física de disco o rotación de secrets. Para eso queda una futura iteración `check_idle`/snapshot si se necesita.
 
 Verificación remota de volúmenes, solo si la ventana controlada lo permite:
 

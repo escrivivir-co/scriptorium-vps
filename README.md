@@ -43,12 +43,15 @@ bash scripts/deploy.sh plan
 Las verificaciones públicas de solo lectura viven en scripts separados:
 
 ```bash
+bash scripts/check_alive.sh --public
 bash scripts/verify-dns.sh
 bash scripts/verify-caddy.sh
 bash scripts/verify-nodered.sh
 bash scripts/verify-mcp-devops.sh
 bash scripts/verify-verdaccio.sh
 ```
+
+`check_alive.sh` es el check rápido de cierre/operación ligera: endpoints públicos por defecto y, si se ejecuta con `SCRIPTORIUM_ALLOW_REMOTE_READ=YES_READ_VPS`, salud interna remota por SSH sin mutar Docker ni leer secretos.
 
 La operación real requiere `.env` no versionado, sin placeholders, y confirmación explícita:
 
