@@ -7,6 +7,11 @@ WORKDIR /opt/aleph
 COPY MCPGallery /opt/aleph/MCPGallery
 COPY ScriptoriumVps /opt/aleph/ScriptoriumVps
 
+WORKDIR /opt/aleph/MCPGallery/mcp-core-sdk
+RUN npm install --include=dev --no-fund --no-audit \
+    && npm run build \
+    && npm pack --pack-destination .
+
 WORKDIR /opt/aleph/MCPGallery/mcp-mesh-sdk
 RUN npm install --include=dev --no-fund --no-audit
 
