@@ -12,6 +12,7 @@ Este runbook despliega `ScriptoriumVps` junto al PUB existente sin sustituir `OA
   - `scriptorium-nodered`
   - `scriptorium-mcp-devops`
   - `scriptorium-verdaccio`
+  - `scriptorium-rooms` (alias adicional del servicio `nodered`; expone puerto `3010` internamente a `pub-web` sin publicarlo al host)
 
 ## Estado comprobado antes de operar
 
@@ -155,10 +156,124 @@ El bloque `pub.escrivivir.co` debe permanecer intacto. Los hosts Scriptorium se 
 Después de aplicar el Caddyfile en el VPS:
 
 ```bash
-cd /opt/aleph-scriptorium/BlockchainComPort/OASIS_PUB
-docker compose -f docker-compose.pub.yml config
-docker compose -f docker-compose.pub.yml restart pub-web
+# Validar ANTES de recargar (nunca restart con config no validada)
+cat /opt/oasis-scriptorium/OASIS_PUB/caddy/Caddyfile \
+  | docker exec -i oasis-pub-web caddy validate --adapter caddyfile --config /dev/stdin
+
+# Reload sin reiniciar el contenedor (preserva TLS/sessions de pub.escrivivir.co)
+cat /opt/oasis-scriptorium/OASIS_PUB/caddy/Caddyfile \
+  | docker exec -i oasis-pub-web caddy reload --adapter caddyfile --config /dev/stdin
 ```
+
+⚠️ **NUNCA** `docker compose restart pub-web` con un Caddyfile no validado. Si algo falla, restaurar el backup `.before-*` y recargar por stdin.
+
+⚠️ **Bind mount single-file:** un `cp` sobre el Caddyfile en el host cambia el inode; el contenedor sigue viendo el inode antiguo. Para editar en-lugar usa `cat > file` (preserva inode). Si ya se produjo el cambio de inode, carga la config por stdin como se muestra arriba.
+
+## Pub.Rooms federado
+
+> Operativo desde 2026-05-09 (TASK-10). Endpoint: `wss://rooms.scriptorium.escrivivir.co/runtime`.
+
+### Verificación rápida del edge y upstream
+
+```bash
+# Edge Caddy (responde a nivel Caddy sin tocar el upstream)
+curl -sI https://rooms.scriptorium.escrivivir.co/healthz
+# Esperado: HTTP/2 200  body: "scriptorium rooms edge ok"
+
+# Upstream real (desde dentro del contenedor nodered)
+docker exec scriptorium-vps-nodered-1 curl -sf http://127.0.0.1:3010/healthz
+# Esperado: ok
+
+# Upstream desde pub-web (via alias Docker)
+docker exec oasis-pub-web wget -qO- http://scriptorium-rooms:3010/healthz
+# Esperado: ok
+```
+
+### Unirse como cliente (primera vez)
+
+```bash
+# Prerequisito: Node.js >= 18 y Node-RED instalado (npm install -g node-red)
+git clone https://github.com/escrivivir-co/scriptorium-vps.git
+cd scriptorium-vps
+bash ScriptoriumVps/scripts/bootstrap-mesh-client.sh
+# El script pide: ROOMS_USER, ROOMS_ROOM, ROOMS_SECRET (interactivo si no están en env)
+# El secret lo proporciona el owner fuera de banda.
+```
+
+O con variables en entorno (modo no interactivo):
+
+```bash
+export ROOMS_USER=mi-handle
+export ROOMS_ROOM=ROOMS_LAB
+export ROOMS_SECRET=<secret-recibido-del-owner>
+bash ScriptoriumVps/scripts/bootstrap-mesh-client.sh
+```
+
+Después:
+
+```bash
+source ~/.node-red/.env.rooms && node-red
+# Abrir http://localhost:1880/red/ → Import → flows_pub-room-client.json → Deploy
+# Verificar en https://scriptorium.escrivivir.co/dashboard/rooms que apareces
+```
+
+### Rotación del shared secret (R10-06)
+
+El secret se almacena en `/srv/oasis/scriptorium/node-red/secrets/rooms-secrets.json` en el VPS (perms `600`, owner `1000:1000`). El fichero tiene la forma:
+
+```json
+{"ROOMS_LAB": "<secret-urlsafe-base64-43-chars>"}
+```
+
+Procedimiento de rotación:
+
+```bash
+# 1. Generar nuevo secret
+nuevo=$(python3 -c "import secrets; print(secrets.token_urlsafe(32))")
+echo "nuevo secret-len: ${#nuevo} (no mostrar en logs)"
+
+# 2. Escribir en el fichero de secrets del VPS
+ssh debian@92.243.24.163 \
+  "python3 -c \"import json; d={'ROOMS_LAB': '$nuevo'}; open('/srv/oasis/scriptorium/node-red/secrets/rooms-secrets.json','w').write(json.dumps(d))\""
+
+# 3. Recargar el runtime Rooms (hot-reload de flows via API admin, sin recrear contenedor)
+curl -s -X POST http://admin.scriptorium.escrivivir.co/red/flows \
+  -H 'Node-RED-API-Version: v2' \
+  -H 'Content-Type: application/json' \
+  -d '{"deploymentType":"reload"}'
+
+# 4. Distribuir el nuevo secret a los peers fuera de banda
+# 5. Cada peer actualiza ~/.node-red/.env.rooms y reinicia node-red
+```
+
+⚠️ El secret NUNCA en git, en logs, ni en transcripts de sesiones de operaciones.
+
+### Diagnóstico de conexión federada
+
+```bash
+# Ver logs de auth / JOIN / DISCONNECT en el contenedor
+docker logs --since 10m scriptorium-vps-nodered-1 2>&1 \
+  | grep -E "auth|JOIN|DISCONNECT|ROOM_MESSAGE|reject" | tail -20
+
+# Smoke rápido desde cualquier máquina con Node.js
+ROOMS_SECRET=<secret> node -e "
+  const io = require('socket.io-client');
+  const s = io('https://rooms.scriptorium.escrivivir.co/runtime', {
+    auth: { token: process.env.ROOMS_SECRET, room: 'ROOMS_LAB', user: 'smoke' },
+    transports: ['websocket'], timeout: 5000
+  });
+  s.on('connect', () => { console.log('OK connected', s.id); s.disconnect(); process.exit(0); });
+  s.on('connect_error', e => { console.log('ERROR:', e.message); process.exit(1); });
+  setTimeout(() => process.exit(2), 8000);
+"
+```
+
+### Límites del sistema (no objetivos de TASK-10)
+
+- No es identidad fuerte: el shared secret es MVP. No sustituye OASIS/SSB.
+- Sin registro abierto: solo amigos con secret distribuido fuera de banda.
+- Sin WebRTC, JWT ni identidad federada AT-Protocol en este ciclo.
+- El endpoint `/socket.io` no está expuesto por `scriptorium.escrivivir.co` (solo por `rooms.scriptorium.escrivivir.co`).
 
 ## Verificación
 
@@ -224,12 +339,14 @@ Errores graves:
 ## Criterios de éxito
 
 - `pub.escrivivir.co` sigue respondiendo por Caddy.
-- Los cuatro hosts Scriptorium resuelven a `92.243.24.163`.
-- `/healthz` responde en los cuatro hosts Scriptorium.
+- Los cinco hosts Scriptorium resuelven a `92.243.24.163`.
+- `/healthz` responde en los cinco hosts Scriptorium (incluyendo `rooms.scriptorium.escrivivir.co`).
 - `/red`, `/ui` y `/dashboard` responden en `scriptorium.escrivivir.co`.
 - `admin.scriptorium.escrivivir.co/red/` exige autenticación o responde de forma controlada.
 - `mcp.scriptorium.escrivivir.co/mcp` devuelve `401/403` sin Bearer y `200` con Bearer válido.
 - `npm.scriptorium.escrivivir.co/-/ping` responde.
+- `rooms.scriptorium.escrivivir.co/healthz` responde `200` y el upstream real devuelve `ok`.
+- Handshake Socket.IO con token válido conecta a `ROOMS_LAB`; con token inválido se rechaza con `unauthorized`.
 - Los volúmenes bajo `/srv/oasis/scriptorium` existen y usan UID:GID `1000:1000` salvo decisión distinta.
 
 ## Rollback mínimo
