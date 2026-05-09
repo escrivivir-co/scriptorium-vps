@@ -30,6 +30,11 @@ load_env() {
     echo "Falta $ENV_FILE. Copia .env.example a .env y rellena placeholders antes de operar."
     exit 1
   fi
+  if grep -nE '^NODERED_.*_PASSWORD_BCRYPT=\$2[aby]?\$' "$ENV_FILE"; then
+    echo "Los hashes bcrypt de Node-RED/Caddy deben ir entre comillas simples en .env para que Bash no interprete '$'."
+    echo "Ejemplo: NODERED_ADMIN_PASSWORD_BCRYPT='\$2b\$10\$...'"
+    exit 1
+  fi
   set -a
   # shellcheck disable=SC1090
   . "$ENV_FILE"
@@ -37,7 +42,7 @@ load_env() {
 }
 
 assert_no_placeholders() {
-  if grep -nE 'CHANGE_ME|TODO|REPLACE_ME' "$ENV_FILE"; then
+  if grep -nE '^[A-Z0-9_]+=.*(CHANGE_ME|TODO|REPLACE_ME)' "$ENV_FILE"; then
     echo "El .env contiene placeholders. Sustitúyelos antes de preflight/deploy."
     exit 1
   fi
