@@ -1,0 +1,21 @@
+# .npmrc — Scriptorium VPS registry
+# Copia este fichero como .npmrc en el proyecto o en ~/ y sustituye CHANGE_ME.
+#
+# Auth para publicar contra Verdaccio.
+# Usar username + _password (solo password en base64) + email — NO _auth ni _authToken.
+# Nota: la web UI muestra Author/Maintainers desde package.json, no desde esta auth.
+# Si un paquete aparece como "Anonymous", revisa que package.json tenga author.
+#
+# Generar _password:
+#   echo -n "MI_PASSWORD" | base64
+#
+# Fuente de credenciales: ScriptoriumVps/.env.generated-secrets
+#   VERDACCIO_ADMIN_USER / VERDACCIO_ADMIN_PASSWORD / VERDACCIO_PUBLISHER_EMAIL
+#
+# Para publicar: usar scripts/publish-package.sh (gestiona el ~/.npmrc automáticamente).
+
+@alephscript:registry=https://npm.scriptorium.escrivivir.co
+//npm.scriptorium.escrivivir.co/:username=CHANGE_ME_USER
+//npm.scriptorium.escrivivir.co/:_password=CHANGE_ME_BASE64_PASSWORD_ONLY
+//npm.scriptorium.escrivivir.co/:email=CHANGE_ME_EMAIL
+//npm.scriptorium.escrivivir.co/:always-auth=true

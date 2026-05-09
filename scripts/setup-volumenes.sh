@@ -38,6 +38,13 @@ install -d -m 755 \
   "${SCRIPTORIUM_REMOTE_ROOT}/ARCHIVO/PLUGINS/SCRIPTORIUM_VPS/node-red-projects"
 
 # ── Verdaccio ─────────────────────────────────────────────────────────────────
+# IMPORTANTE: el proceso Verdaccio dentro del contenedor corre como uid=10001 gid=65533
+# (definido en la imagen oficial verdaccio/verdaccio, no configurable por env).
+# El directorio storage/ requiere ser accesible por ese UID, NO por SCRIPTORIUM_UID.
+# El directorio conf/ solo necesita lectura (montado :ro), 755 es suficiente.
+VERDACCIO_UID=10001
+VERDACCIO_GID=65533
+
 install -d -m 755 \
   "${SCRIPTORIUM_REMOTE_ROOT}/verdaccio" \
   "${SCRIPTORIUM_REMOTE_ROOT}/verdaccio/storage" \
@@ -58,12 +65,20 @@ install -d -m 755 \
   "${SCRIPTORIUM_REMOTE_ROOT}/node-red/data"
 
 # ── Aplicar ownership UID:GID ─────────────────────────────────────────────────
+# Ownership general: SCRIPTORIUM_UID:SCRIPTORIUM_GID para Node-RED, MCP, ARCHIVO…
 chown -R "${SCRIPTORIUM_UID}:${SCRIPTORIUM_GID}" "${SCRIPTORIUM_REMOTE_ROOT}"
+
+# Verdaccio storage: sobreescribir con el UID:GID real del proceso en el contenedor.
+# El proceso corre como verdaccio (10001:65533) independientemente de SCRIPTORIUM_UID.
+# Sin este paso, Verdaccio no puede escribir htpasswd ni tarballs → EACCES.
+chown -R "${VERDACCIO_UID}:${VERDACCIO_GID}" "${SCRIPTORIUM_REMOTE_ROOT}/verdaccio/storage"
 
 echo "==> Layout creado:"
 find "${SCRIPTORIUM_REMOTE_ROOT}" -maxdepth 5 | sort
 
 echo ""
-echo "==> OK. Verifica que UID:GID del proceso nodered/verdaccio/caddy coincide con ${SCRIPTORIUM_UID}:${SCRIPTORIUM_GID}."
+echo "==> OK. Owners finales:"
+echo "    ${SCRIPTORIUM_REMOTE_ROOT}/ (excepto verdaccio/storage): ${SCRIPTORIUM_UID}:${SCRIPTORIUM_GID}"
+echo "    ${SCRIPTORIUM_REMOTE_ROOT}/verdaccio/storage: ${VERDACCIO_UID}:${VERDACCIO_GID} (proceso verdaccio en contenedor)"
 echo "    Referencia: docker-compose.yml → user: \"\${SCRIPTORIUM_UID}:\${SCRIPTORIUM_GID}\""
 echo "    NOTA: node-red-projects/ se monta desde el repo clonado, no desde ${SCRIPTORIUM_REMOTE_ROOT}/."

@@ -114,6 +114,47 @@ export SCRIPTORIUM_ALLOW_REMOTE_READ=YES_READ_VPS
 bash scripts/verify-volumes.sh
 ```
 
+## Verdaccio — operación mínima
+
+Manual canónico dev/ops: `sala/dossiers/scriptorium-vps/tasks/TASK-06_STACK_VERDACCIO.md`.
+
+Resumen VPS:
+
+- Registry: `https://npm.scriptorium.escrivivir.co`.
+- Scope: `@alephscript/*`.
+- Upstream interno Caddy: `scriptorium-verdaccio:4873`.
+- Storage persistente: `/srv/oasis/scriptorium/verdaccio/storage`.
+- Owner crítico storage: `10001:65533` (proceso `verdaccio` dentro del contenedor).
+- Usuario/admin: gestionar con `scripts/create-verdaccio-user.sh`; no usar registro API (`max_users: -1`).
+- Publicación: gestionar con `scripts/publish-package.sh`; los paquetes deben declarar `author` y `maintainers`.
+
+Checks mínimos:
+
+```bash
+bash scripts/verify-verdaccio.sh
+npm ping --registry https://npm.scriptorium.escrivivir.co/
+npm view @alephscript/mcp-core-sdk author maintainers \
+  --registry https://npm.scriptorium.escrivivir.co
+```
+
+Recovery rápido:
+
+```bash
+docker ps --filter name=scriptorium-vps-verdaccio-1
+docker logs --tail 100 scriptorium-vps-verdaccio-1
+sudo chown -R 10001:65533 /srv/oasis/scriptorium/verdaccio/storage
+docker restart scriptorium-vps-verdaccio-1
+```
+
+Errores graves:
+
+| Síntoma | Acción corta |
+|---|---|
+| `EACCES` en `/verdaccio/storage` | Reaplicar `chown -R 10001:65533` al storage. |
+| `409` creando usuario por API | Esperado: usar `scripts/create-verdaccio-user.sh`. |
+| `E401` en publish | Usar `scripts/publish-package.sh` o revisar `.npmrc.example`. |
+| UI muestra `Anonymous` | Falta `author`/`maintainers` en `package.json`; ver `TASK-06`. |
+
 ## Criterios de éxito
 
 - `pub.escrivivir.co` sigue respondiendo por Caddy.
