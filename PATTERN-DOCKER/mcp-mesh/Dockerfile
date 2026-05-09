@@ -8,12 +8,12 @@ COPY MCPGallery /opt/aleph/MCPGallery
 COPY ScriptoriumVps /opt/aleph/ScriptoriumVps
 
 WORKDIR /opt/aleph/MCPGallery/mcp-core-sdk
-RUN npm install --include=dev --no-fund --no-audit \
+RUN npm install --include=dev --no-fund --no-audit --package-lock=false \
     && npm run build \
     && npm pack --pack-destination .
 
 WORKDIR /opt/aleph/MCPGallery/mcp-mesh-sdk
-RUN npm install --include=dev --no-fund --no-audit
+RUN npm install --include=dev --no-fund --no-audit --package-lock=false
 
 RUN chmod +x /opt/aleph/ScriptoriumVps/PATTERN-DOCKER/mcp-mesh/entrypoint.sh \
     && mkdir -p /workspace/devops-data /workspace/audit /opt/aleph/ARCHIVO/PLUGINS/MCP_DATA
