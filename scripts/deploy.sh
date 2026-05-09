@@ -71,12 +71,12 @@ Objetivo:
   Desplegar ScriptoriumVps junto al PUB existente sin parar ni reemplazar OASIS_PUB.
 
 Rutas afectadas:
-  - Código: /opt/oasis-scriptorium/ScriptoriumVps
+  - Código: /opt/aleph-scriptorium/ScriptoriumVps
   - Datos Scriptorium: \${SCRIPTORIUM_REMOTE_ROOT:-/srv/oasis/scriptorium}
   - Edge existente: BlockchainComPort/OASIS_PUB/caddy/Caddyfile
 
 Comandos previstos dentro del VPS, tras aprobación explícita PO:
-  cd /opt/oasis-scriptorium
+  cd /opt/aleph-scriptorium
   git pull --recurse-submodules
   git submodule update --init --recursive ScriptoriumVps BlockchainComPort
   cd ScriptoriumVps
@@ -88,7 +88,7 @@ Comandos previstos dentro del VPS, tras aprobación explícita PO:
   bash scripts/verify.sh
 
 Rollback mínimo:
-  cd /opt/oasis-scriptorium/ScriptoriumVps
+  cd /opt/aleph-scriptorium/ScriptoriumVps
   export SCRIPTORIUM_DEPLOY_CONFIRM=YES_DEPLOY_SCRIPTORIUM_VPS
   bash scripts/deploy.sh rollback-local
   cd ../BlockchainComPort/OASIS_PUB

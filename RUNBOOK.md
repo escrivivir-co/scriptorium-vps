@@ -27,7 +27,7 @@ Preflight público del 2026-05-09:
 ## Precondiciones
 
 1. DNS de los cuatro hosts Scriptorium debe apuntar a `92.243.24.163`.
-2. El VPS debe tener el repo en `/opt/oasis-scriptorium`.
+2. El VPS debe tener el repo en `/opt/aleph-scriptorium`.
 3. `BlockchainComPort/OASIS_PUB/caddy/Caddyfile` debe incluir los bloques Scriptorium aditivos.
 4. `ScriptoriumVps/.env` debe existir en el VPS, no versionado y sin `CHANGE_ME`.
 5. Docker Compose v2 operativo en el VPS.
@@ -55,7 +55,7 @@ El PO debe aprobar explícitamente justo antes de operar.
 ## Comandos de despliegue previstos en el VPS
 
 ```bash
-cd /opt/oasis-scriptorium
+cd /opt/aleph-scriptorium
 git pull --recurse-submodules
 git submodule update --init --recursive ScriptoriumVps BlockchainComPort
 cd ScriptoriumVps
@@ -120,6 +120,34 @@ Checks funcionales una vez desplegado el flow en Node-RED:
 - la UI lista namespaces, rooms, usuarios y sockets;
 - al hacer `Leave`, los agentes salen de la room y el estado se refresca.
 
+### Estado validado en VPS — 2026-05-09
+
+Resultado de la ventana controlada R09-06:
+
+- `node-red-dashboard-2-alephscript-rooms@0.1.0` publicado en `https://npm.scriptorium.escrivivir.co`;
+- `scriptorium-vps-nodered-1` con `@flowfuse/node-red-dashboard`, `node-red-dashboard` y `node-red-dashboard-2-alephscript-rooms` instalados;
+- flow activo copiado desde `ScriptoriumVps/node-red-projects/rooms-mvp-candidate.flow.json` a `/data/flows.json` dentro del contenedor;
+- endpoints verificados:
+  - `https://scriptorium.escrivivir.co/ui/` → `200`
+  - `https://scriptorium.escrivivir.co/dashboard/` → `200`
+  - `https://scriptorium.escrivivir.co/dashboard/rooms` → `200`
+  - `https://admin.scriptorium.escrivivir.co/red/` → `200`
+- UI validada con 3 dummy agents en `ROOMS_LAB`, `managed-port`, `GET_SERVER_STATE` periódico y listado de namespaces/rooms/usuarios/sockets.
+
+### Caveat actual de persistencia
+
+La activación actual del MVP quedó operativa, pero todavía no totalmente endurecida frente a recreación completa del contenedor:
+
+- los paquetes Node-RED del MVP se instalaron dentro de `/data` con `npm install` en el contenedor vivo;
+- el flow activo reside en `/data/flows.json` dentro del contenedor;
+- esto sobrevive a reinicios del contenedor, pero no está garantizado tras un `docker compose up -d --build` o recreación total.
+
+Handoff operativo:
+
+- mantener esta evidencia en `RUNBOOK.md` y la trazabilidad técnica en `TASK-04_STACK_NODERED.md`;
+- no seguir usando `TASK-09` como runbook vivo;
+- próximo endurecimiento: automatizar reinstalación de contribs y materializar el flow MVP como project persistente o procedimiento reproducible de bootstrap.
+
 ## Caddy/OASIS_PUB
 
 El bloque `pub.escrivivir.co` debe permanecer intacto. Los hosts Scriptorium se añaden como bloques nuevos en `BlockchainComPort/OASIS_PUB/caddy/Caddyfile`.
@@ -127,7 +155,7 @@ El bloque `pub.escrivivir.co` debe permanecer intacto. Los hosts Scriptorium se 
 Después de aplicar el Caddyfile en el VPS:
 
 ```bash
-cd /opt/oasis-scriptorium/BlockchainComPort/OASIS_PUB
+cd /opt/aleph-scriptorium/BlockchainComPort/OASIS_PUB
 docker compose -f docker-compose.pub.yml config
 docker compose -f docker-compose.pub.yml restart pub-web
 ```
@@ -207,7 +235,7 @@ Errores graves:
 ## Rollback mínimo
 
 ```bash
-cd /opt/oasis-scriptorium/ScriptoriumVps
+cd /opt/aleph-scriptorium/ScriptoriumVps
 export SCRIPTORIUM_DEPLOY_CONFIRM=YES_DEPLOY_SCRIPTORIUM_VPS
 bash scripts/deploy.sh rollback-local
 cd ../BlockchainComPort/OASIS_PUB
