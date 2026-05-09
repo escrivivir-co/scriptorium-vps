@@ -82,6 +82,44 @@ La publicación/instalación de paquetes AlephScript se realiza después de veri
 
 Esto evita el ciclo de bootstrap en el que Node-RED o MCP necesitan paquetes servidos por un Verdaccio que aún no existe.
 
+## Node-RED Rooms MVP
+
+Paquete candidato Dashboard 2 del MVP:
+
+- `WiringEditor/packages/node-red-dashboard-2-alephscript-rooms`
+
+Flow candidato exportable:
+
+- `ScriptoriumVps/node-red-projects/rooms-mvp-candidate.flow.json`
+
+Decisión operativa actual del MVP:
+
+- modo recomendado: `managed-port`;
+- runtime Rooms dentro del contenedor Node-RED, en puerto dedicado interno (por defecto `3010`);
+- la UI Dashboard 2 no conecta directamente al runtime Rooms desde el navegador;
+- el widget envía comandos al flow, y el flow delega en:
+  - `alephscript-rooms-server`
+  - `alephscript-rooms-agent-dummy`
+
+Motivo: con el SDK actual, `same-origin` no es todavía la opción segura por defecto porque el runtime crea su propio Socket.IO sobre el path estándar `/socket.io`, lo que puede colisionar con el stack ya usado por Dashboard 2.
+
+Checks locales/operativos del MVP:
+
+```bash
+cd WiringEditor/packages/node-red-dashboard-2-alephscript-rooms
+npm install
+npm run build:full
+npm pack --dry-run
+```
+
+Checks funcionales una vez desplegado el flow en Node-RED:
+
+- `/dashboard/rooms` responde con el widget Rooms;
+- el nodo `alephscript-rooms-server` muestra snapshots `SET_SERVER_STATE`;
+- `alephscript-rooms-agent-dummy` crea 3 agentes y los suscribe a `ROOMS_LAB`;
+- la UI lista namespaces, rooms, usuarios y sockets;
+- al hacer `Leave`, los agentes salen de la room y el estado se refresca.
+
 ## Caddy/OASIS_PUB
 
 El bloque `pub.escrivivir.co` debe permanecer intacto. Los hosts Scriptorium se añaden como bloques nuevos en `BlockchainComPort/OASIS_PUB/caddy/Caddyfile`.

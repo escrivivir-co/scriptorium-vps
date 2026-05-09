@@ -5,6 +5,15 @@
   ],
   "workspacePackages": [
     {
+      "name": "node-red-contrib-alephscript-core",
+      "source": "/opt/aleph/WiringEditor/packages/node-red-contrib-alephscript-core",
+      "buildCommand": "npm run build:full",
+      "smokeFiles": [
+        "dist/index.js",
+        "dist/nodes/alephscript-core-client.js"
+      ]
+    },
+    {
       "name": "node-red-contrib-alephscript",
       "source": "/opt/aleph/WiringEditor/packages/node-red-contrib-alephscript",
       "buildCommand": "npm run build:full",
@@ -30,6 +39,16 @@
         "dist/index.js",
         "dist/nodes/escribiente-dashboard-recorder.js",
         "resources/escribiente-dashboard-recorder.umd.js"
+      ]
+    },
+    {
+      "name": "node-red-dashboard-2-alephscript-rooms",
+      "source": "/opt/aleph/WiringEditor/packages/node-red-dashboard-2-alephscript-rooms",
+      "buildCommand": "npm run build:full",
+      "smokeFiles": [
+        "dist/index.js",
+        "dist/nodes/rooms-dashboard.js",
+        "resources/rooms-dashboard.umd.js"
       ]
     }
   ],

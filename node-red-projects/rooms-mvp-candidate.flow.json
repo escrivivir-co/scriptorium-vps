@@ -1,0 +1,153 @@
+[
+  {
+    "id": "task09-rooms-mvp",
+    "type": "tab",
+    "label": "Rooms MVP",
+    "disabled": false,
+    "info": "Candidate flow for TASK-09 Rooms MVP. Uses managed-port runtime by default."
+  },
+  {
+    "id": "rooms-ui-base",
+    "type": "ui-base",
+    "name": "AlephScript Rooms Dashboard",
+    "path": "/dashboard",
+    "appIcon": "",
+    "includeClientData": true,
+    "acceptsClientConfig": [
+      "ui-notification",
+      "ui-control"
+    ],
+    "showPathInSidebar": false,
+    "headerContent": "page",
+    "navigationStyle": "default",
+    "titleBarStyle": "default",
+    "showReconnectNotification": true,
+    "notificationDisplayTime": 1,
+    "showDisconnectNotification": true,
+    "allowInstall": false
+  },
+  {
+    "id": "rooms-ui-page",
+    "type": "ui-page",
+    "name": "Rooms MVP",
+    "ui": "rooms-ui-base",
+    "path": "/rooms",
+    "icon": "home",
+    "layout": "grid",
+    "theme": "default",
+    "breakpoints": [
+      { "name": "Default", "px": 0, "cols": 3 },
+      { "name": "Tablet", "px": 576, "cols": 6 },
+      { "name": "Small Desktop", "px": 768, "cols": 9 },
+      { "name": "Desktop", "px": 1024, "cols": 12 }
+    ],
+    "order": 0,
+    "className": "",
+    "visible": "true",
+    "disabled": "false"
+  },
+  {
+    "id": "rooms-ui-group",
+    "type": "ui-group",
+    "name": "Rooms Lab",
+    "page": "rooms-ui-page",
+    "width": 12,
+    "height": 1,
+    "order": 0,
+    "showTitle": true,
+    "className": "",
+    "visible": true,
+    "disabled": false,
+    "groupType": "default"
+  },
+  {
+    "id": "rooms-runtime-config",
+    "type": "alephscript-rooms-config",
+    "name": "Rooms Runtime",
+    "mode": "managed-port",
+    "externalUrl": "http://localhost:3010",
+    "namespace": "/runtime",
+    "managedPort": 3010,
+    "managedHost": "127.0.0.1",
+    "pollIntervalMs": 5000
+  },
+  {
+    "id": "rooms-refresh-inject",
+    "type": "inject",
+    "z": "task09-rooms-mvp",
+    "name": "Refresh server state",
+    "props": [
+      { "p": "payload" },
+      { "p": "topic", "vt": "str" }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": true,
+    "onceDelay": "0.5",
+    "topic": "get_server_state",
+    "payload": "",
+    "payloadType": "date",
+    "x": 180,
+    "y": 120,
+    "wires": [["rooms-server-node"]]
+  },
+  {
+    "id": "rooms-server-node",
+    "type": "alephscript-rooms-server",
+    "z": "task09-rooms-mvp",
+    "name": "Rooms Server",
+    "config": "rooms-runtime-config",
+    "requestStateOnDeploy": true,
+    "x": 420,
+    "y": 120,
+    "wires": [["rooms-dashboard-node", "rooms-debug-node"]]
+  },
+  {
+    "id": "rooms-dummy-node",
+    "type": "alephscript-rooms-agent-dummy",
+    "z": "task09-rooms-mvp",
+    "name": "Rooms Dummy Agents",
+    "config": "rooms-runtime-config",
+    "agentCount": 3,
+    "agentPrefix": "dummy-agent",
+    "defaultRoom": "ROOMS_LAB",
+    "autoStart": true,
+    "makeFirstMaster": true,
+    "messageEvent": "ROOMS_LAB_MESSAGE",
+    "features": "ROOM_MESSAGE,GET_SERVER_STATE",
+    "x": 430,
+    "y": 220,
+    "wires": [["rooms-dashboard-node", "rooms-debug-node"]]
+  },
+  {
+    "id": "rooms-dashboard-node",
+    "type": "alephscript-rooms-dashboard",
+    "z": "task09-rooms-mvp",
+    "name": "Rooms Dashboard",
+    "config": "rooms-runtime-config",
+    "group": "rooms-ui-group",
+    "order": 0,
+    "width": 12,
+    "height": 14,
+    "title": "AlephScript Rooms MVP",
+    "defaultRoom": "ROOMS_LAB",
+    "x": 430,
+    "y": 340,
+    "wires": [["rooms-server-node", "rooms-dummy-node", "rooms-debug-node"]]
+  },
+  {
+    "id": "rooms-debug-node",
+    "type": "debug",
+    "z": "task09-rooms-mvp",
+    "name": "Rooms events",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "x": 730,
+    "y": 220,
+    "wires": []
+  }
+]
