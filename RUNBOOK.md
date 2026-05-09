@@ -66,6 +66,18 @@ bash scripts/deploy.sh deploy-local
 bash scripts/verify.sh
 ```
 
+### Bootstrap Node-RED y paquetes AlephScript
+
+El primer `deploy-local` levanta Node-RED limpio. No instala todavía contribs AlephScript ni depende de `alephscript-mcp-core-sdk-*.tgz`.
+
+La publicación/instalación de paquetes AlephScript se realiza después de verificar que Verdaccio está vivo:
+
+1. comprobar `https://npm.scriptorium.escrivivir.co/-/ping`;
+2. publicar el lote inicial en modo controlado;
+3. reinstalar/reconstruir Node-RED con contribs desde el registry propio si procede.
+
+Esto evita el ciclo de bootstrap en el que Node-RED necesita paquetes servidos por un Verdaccio que aún no existe.
+
 ## Caddy/OASIS_PUB
 
 El bloque `pub.escrivivir.co` debe permanecer intacto. Los hosts Scriptorium se añaden como bloques nuevos en `BlockchainComPort/OASIS_PUB/caddy/Caddyfile`.

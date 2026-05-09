@@ -25,4 +25,16 @@ Este directorio deja preparada la superficie del contenedor único `nodered` que
 - `build-local-contribs.mjs` compila paquetes locales y valida smoke files antes de instalar.
 - `install-contribs.mjs` instala solo si los artefactos compilados existen.
 
+## Bootstrap en dos fases
+
+El primer despliegue levanta Node-RED limpio, sin instalar todavía contribs AlephScript ni depender de `@alephscript/mcp-core-sdk`.
+
+Motivo: Verdaccio forma parte del mismo bootstrap. Hasta que `npm.scriptorium.escrivivir.co` esté vivo, no debe usarse como origen de paquetes, y tampoco conviene bloquear el arranque inicial por `.tgz` locales.
+
+Fase posterior, con Verdaccio ya verificado:
+
+1. publicar paquetes iniciales con `PATTERN-DOCKER/verdaccio/publish-initial-packages.mjs`;
+2. instalar contribs Node-RED desde el registry propio o mediante un rebuild controlado;
+3. ejecutar smoke tests de dashboards/contribs.
+
 El diseño sigue sin publicar `1880` al host; la exposición pública pasa por el edge definido en `VPS-03`.
