@@ -65,6 +65,7 @@ services:
       oasis_pub_net:
         aliases:
           - scriptorium-nodered
+          - scriptorium-rooms
 
   mcp-devops:
     profiles: ["mcp"]
