@@ -8,7 +8,7 @@ COPY MCPGallery /opt/aleph/MCPGallery
 COPY ScriptoriumVps /opt/aleph/ScriptoriumVps
 
 WORKDIR /opt/aleph/MCPGallery/mcp-mesh-sdk
-RUN npm ci --include=dev
+RUN npm install --include=dev --no-fund --no-audit
 
 RUN chmod +x /opt/aleph/ScriptoriumVps/PATTERN-DOCKER/mcp-mesh/entrypoint.sh \
     && mkdir -p /workspace/devops-data /workspace/audit /opt/aleph/ARCHIVO/PLUGINS/MCP_DATA
