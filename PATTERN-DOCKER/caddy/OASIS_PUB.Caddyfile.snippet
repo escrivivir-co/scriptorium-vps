@@ -21,7 +21,7 @@ scriptorium.escrivivir.co {
     reverse_proxy scriptorium-nodered:1880
 }
 
-# Host admin: capa extra opcional de Basic Auth sobre adminAuth interno de Node-RED.
+# Host admin: acceso al mismo Node-RED; la autenticación/escritura la gobierna adminAuth interno.
 admin.scriptorium.escrivivir.co {
     encode zstd gzip
 
@@ -34,10 +34,6 @@ admin.scriptorium.escrivivir.co {
     @health path /healthz
     handle @health {
         respond "scriptorium admin edge ok" 200
-    }
-
-    basic_auth {
-        {$NODERED_ADMIN_USER:admin} {$NODERED_ADMIN_PASSWORD_BCRYPT}
     }
 
     reverse_proxy scriptorium-nodered:1880
