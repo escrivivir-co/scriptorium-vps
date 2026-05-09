@@ -44,6 +44,7 @@ Las verificaciones públicas de solo lectura viven en scripts separados:
 
 ```bash
 bash scripts/check_alive.sh --public
+bash scripts/check_idle.sh --remote --seconds 5   # requiere SCRIPTORIUM_ALLOW_REMOTE_READ=YES_READ_VPS
 bash scripts/verify-dns.sh
 bash scripts/verify-caddy.sh
 bash scripts/verify-nodered.sh
@@ -52,6 +53,8 @@ bash scripts/verify-verdaccio.sh
 ```
 
 `check_alive.sh` es el check rápido de cierre/operación ligera: endpoints públicos por defecto y, si se ejecuta con `SCRIPTORIUM_ALLOW_REMOTE_READ=YES_READ_VPS`, salud interna remota por SSH sin mutar Docker ni leer secretos.
+
+`check_idle.sh` es el snapshot rápido para saber si hay que parar/degradar servicios: mide CPU/RAM por contenedor, disco, delta de red, health interno y actividad Rooms reciente. Devuelve `OK_IDLE`, `REVISAR` o `PARAR_TODO`.
 
 La operación real requiere `.env` no versionado, sin placeholders, y confirmación explícita:
 

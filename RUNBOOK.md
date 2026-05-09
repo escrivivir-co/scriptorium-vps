@@ -281,6 +281,7 @@ Desde `ScriptoriumVps/`:
 
 ```bash
 bash scripts/check_alive.sh --public
+SCRIPTORIUM_ALLOW_REMOTE_READ=YES_READ_VPS bash scripts/check_idle.sh --remote --seconds 5
 bash scripts/verify-dns.sh
 bash scripts/verify-caddy.sh
 bash scripts/verify-nodered.sh
@@ -303,7 +304,33 @@ SCRIPTORIUM_ALLOW_REMOTE_READ=YES_READ_VPS bash scripts/check_alive.sh --all
 
 Qué promete: confirmar que `pub.`, `scriptorium.`, `admin.`, `mcp.`, `npm.` y `rooms.` responden; y, en modo remoto, que los contenedores clave están arriba y que `rooms:3010/healthz` responde desde Node-RED y desde `pub-web`.
 
-Qué **no** promete: demostrar idle real, ausencia criptográfica de peers, salud física de disco o rotación de secrets. Para eso queda una futura iteración `check_idle`/snapshot si se necesita.
+Qué **no** promete: medir saturación, actividad reciente o discos. Para eso usa `check_idle`.
+
+### Check idle / decisión rápida de parar
+
+`scripts/check_idle.sh` responde a la pregunta operativa: **"¿me están saturando el VPS y debo parar/degradar servicios?"**
+
+```bash
+# Emergencia: veredicto en ~5s
+SCRIPTORIUM_ALLOW_REMOTE_READ=YES_READ_VPS bash scripts/check_idle.sh --remote --seconds 5
+
+# Snapshot más estable: ventana de 20s
+SCRIPTORIUM_ALLOW_REMOTE_READ=YES_READ_VPS bash scripts/check_idle.sh --remote --seconds 20
+```
+
+Salida esperada:
+
+- `VERDICT: OK_IDLE` — CPU/RAM/disco/red/health sin señales críticas.
+- `VERDICT: REVISAR` — hay presión o actividad; no invitar peers hasta mirar.
+- `VERDICT: PARAR_TODO` — CPU/RAM/disco/health críticos; si no hay una ventana activa, parar o degradar servicios no esenciales y revisar.
+
+El script no imprime secrets ni lee `rooms-secrets.json`. No muta Docker. Mide:
+
+- `docker ps` y `docker stats` de `oasis-pub-*` y `scriptorium-vps-*`;
+- delta de red del host durante la ventana;
+- health interno de Rooms, Node-RED y edge→Rooms;
+- `df` de `/`, `/srv/oasis` y rutas persistentes clave;
+- logs recientes de Rooms filtrados a eventos no sensibles.
 
 Verificación remota de volúmenes, solo si la ventana controlada lo permite:
 
