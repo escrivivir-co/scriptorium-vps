@@ -1,20 +1,41 @@
-#!/usr/bin/env sh
-set -eu
+#!/usr/bin/env bash
+set -euo pipefail
 
 ROOT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 ENV_FILE="$ROOT_DIR/.env"
-COMPOSE_FILE="$ROOT_DIR/PATTERN-DOCKER/docker-compose.yml"
 
-if [ ! -f "$ENV_FILE" ]; then
-  echo "Falta $ENV_FILE. Copia .env.example a .env antes de validar."
-  exit 1
+if [ -f "$ENV_FILE" ]; then
+  set -a
+  # shellcheck disable=SC1090
+  . "$ENV_FILE"
+  set +a
+else
+  echo "WARN: falta $ENV_FILE; uso defaults públicos para checks de red."
 fi
 
-echo "==> Validando sintaxis de docker compose"
-docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" config >/dev/null
+scripts=(
+  verify-dns.sh
+  verify-caddy.sh
+  verify-nodered.sh
+  verify-mcp-devops.sh
+  verify-verdaccio.sh
+)
 
-echo "==> Endpoints esperados"
-echo "- https://${SCRIPTORIUM_DOMAIN:-scriptorium.escrivivir.co}"
-echo "- https://${SCRIPTORIUM_ADMIN_DOMAIN:-admin.scriptorium.escrivivir.co}"
-echo "- https://${SCRIPTORIUM_MCP_DOMAIN:-mcp.scriptorium.escrivivir.co}/mcp"
-echo "- https://${SCRIPTORIUM_NPM_DOMAIN:-npm.scriptorium.escrivivir.co}"
+status=0
+for script in "${scripts[@]}"; do
+  echo "==> $script"
+  if ! bash "$ROOT_DIR/scripts/$script"; then
+    status=1
+  fi
+done
+
+if [ "${SCRIPTORIUM_ALLOW_REMOTE_READ:-}" = "YES_READ_VPS" ]; then
+  echo "==> verify-volumes.sh"
+  if ! bash "$ROOT_DIR/scripts/verify-volumes.sh"; then
+    status=1
+  fi
+else
+  echo "==> verify-volumes.sh omitido: requiere SCRIPTORIUM_ALLOW_REMOTE_READ=YES_READ_VPS"
+fi
+
+exit "$status"

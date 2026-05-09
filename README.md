@@ -18,6 +18,7 @@ Este repositorio concentra el patrón inicial para publicar cuatro superficies b
 - `scripts/` con helpers de despliegue, verificación y SFTP
 - `.env.example` con placeholders de configuración y secretos no reales
 - `README-SCRIPTORIUM.md` para documentar la integración con el workspace padre
+- `RUNBOOK.md` con la ventana controlada de producción y rollback mínimo
 
 ## Estado
 
@@ -30,6 +31,33 @@ Este scaffold deja lista la estructura de arranque y los patrones locales de los
 - Volúmenes/SFTP usan helpers y variables `SCRIPTORIUM_SSH_*`/`SCRIPTORIUM_REMOTE_ROOT`.
 
 Las validaciones en vivo, DNS real, Docker remoto y publicación real quedan bloqueadas hasta ventana controlada de Aleph con aprobación explícita del PO.
+
+## Despliegue controlado
+
+Por defecto, `scripts/deploy.sh` no despliega: imprime el plan de ventana controlada.
+
+```bash
+bash scripts/deploy.sh plan
+```
+
+Las verificaciones públicas de solo lectura viven en scripts separados:
+
+```bash
+bash scripts/verify-dns.sh
+bash scripts/verify-caddy.sh
+bash scripts/verify-nodered.sh
+bash scripts/verify-mcp-devops.sh
+bash scripts/verify-verdaccio.sh
+```
+
+La operación real requiere `.env` no versionado, sin placeholders, y confirmación explícita:
+
+```bash
+export SCRIPTORIUM_DEPLOY_CONFIRM=YES_DEPLOY_SCRIPTORIUM_VPS
+bash scripts/deploy.sh deploy-local
+```
+
+No ejecutes comandos mutantes fuera de la ventana controlada descrita en `RUNBOOK.md`.
 
 ## Estructura
 

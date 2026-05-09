@@ -1,0 +1,9 @@
+# Secrets / local operator configuration
+.env
+.env.*
+!.env.example
+
+# Local sync and runtime scratch
+tmp-vps-sync/
+*.log
+.DS_Store
