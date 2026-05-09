@@ -44,12 +44,16 @@ services:
       NODERED_DEFAULT_PERMISSIONS: "read"
       NODERED_VIEWER_ENABLED: "${NODERED_VIEWER_ENABLED:-true}"
       NODERED_LOG_LEVEL: "${NODERED_LOG_LEVEL:-info}"
+      ROOMS_BIND_HOST: "${ROOMS_BIND_HOST:-0.0.0.0}"
+      ROOMS_SECRETS_FILE: "${ROOMS_SECRETS_FILE:-/run/secrets/rooms/rooms-secrets.json}"
+      ROOMS_DEFAULT_ROOM: "${ROOMS_DEFAULT_ROOM:-ROOMS_LAB}"
     volumes:
       - ${SCRIPTORIUM_REMOTE_ROOT:-/srv/oasis/scriptorium}/node-red/data:/data
       - ../node-red-projects:/data/projects
       - ${SCRIPTORIUM_REMOTE_ROOT:-/srv/oasis/scriptorium}/ARCHIVO:/data/ARCHIVO
       - ${SCRIPTORIUM_REMOTE_ROOT:-/srv/oasis/scriptorium}/ARCHIVO/DISCO:/data/ARCHIVO/DISCO
       - ./nodered:/opt/aleph/node-red-pattern:ro
+      - ${SCRIPTORIUM_REMOTE_ROOT:-/srv/oasis/scriptorium}/node-red/secrets:/run/secrets/rooms:ro
     healthcheck:
       test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:1880/red/', (res) => process.exit(res.statusCode < 500 ? 0 : 1)).on('error', () => process.exit(1))\""]
       interval: 30s
