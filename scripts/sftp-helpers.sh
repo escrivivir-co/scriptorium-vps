@@ -9,7 +9,7 @@
 #   SCRIPTORIUM_SSH_USER     — usuario SSH (ej: deploy)
 #   SCRIPTORIUM_SSH_PORT     — puerto SSH (default: 22)
 #   SCRIPTORIUM_SSH_KEY_PATH — ruta a clave privada SSH (default: ~/.ssh/id_ed25519)
-#   SCRIPTORIUM_REMOTE_ROOT  — root de datos en el VPS (default: /srv/scriptorium)
+#   SCRIPTORIUM_REMOTE_ROOT  — root de datos en el VPS (default: /srv/oasis/scriptorium)
 #
 # Nota: SCRIPTORIUM_SSH_KEY_PASSPHRASE se lee desde el keyring del SO / ssh-agent;
 # NO se pasa como variable de entorno en scripts no interactivos.
@@ -20,7 +20,7 @@ SCRIPTORIUM_SSH_HOST="${SCRIPTORIUM_SSH_HOST:?SCRIPTORIUM_SSH_HOST no definido}"
 SCRIPTORIUM_SSH_USER="${SCRIPTORIUM_SSH_USER:?SCRIPTORIUM_SSH_USER no definido}"
 SCRIPTORIUM_SSH_PORT="${SCRIPTORIUM_SSH_PORT:-22}"
 SCRIPTORIUM_SSH_KEY_PATH="${SCRIPTORIUM_SSH_KEY_PATH:-${HOME}/.ssh/id_ed25519}"
-SCRIPTORIUM_REMOTE_ROOT="${SCRIPTORIUM_REMOTE_ROOT:-/srv/scriptorium}"
+SCRIPTORIUM_REMOTE_ROOT="${SCRIPTORIUM_REMOTE_ROOT:-/srv/oasis/scriptorium}"
 
 _ssh_opts="-i ${SCRIPTORIUM_SSH_KEY_PATH} -p ${SCRIPTORIUM_SSH_PORT} -o StrictHostKeyChecking=accept-new"
 

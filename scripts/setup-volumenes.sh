@@ -8,7 +8,7 @@
 # Nombres canónicos decididos en RESPUESTAS.md:
 SCRIPTORIUM_UID=${SCRIPTORIUM_UID:-1000}
 SCRIPTORIUM_GID=${SCRIPTORIUM_GID:-1000}
-SCRIPTORIUM_REMOTE_ROOT=${SCRIPTORIUM_REMOTE_ROOT:-/srv/scriptorium}
+SCRIPTORIUM_REMOTE_ROOT=${SCRIPTORIUM_REMOTE_ROOT:-/srv/oasis/scriptorium}
 
 set -euo pipefail
 
@@ -52,7 +52,7 @@ install -d -m 755 \
 # ── Node-RED — data node (NO es el monorepo de projects) ─────────────────────
 # Node-RED usa projectsDir=/data/projects dentro del container.
 # El monorepo `ScriptoriumVps/node-red-projects/` se monta como volumen bind
-# desde el repo clonado, no desde este árbol de /srv/scriptorium/.
+# desde el repo clonado, no desde este árbol de ${SCRIPTORIUM_REMOTE_ROOT}/.
 install -d -m 755 \
   "${SCRIPTORIUM_REMOTE_ROOT}/node-red" \
   "${SCRIPTORIUM_REMOTE_ROOT}/node-red/data"

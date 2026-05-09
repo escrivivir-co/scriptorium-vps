@@ -8,7 +8,7 @@ Registry público del MVP Scriptorium para paquetes `@alephscript/*` y contribs 
 - Auth: `htpasswd` en `/verdaccio/storage/htpasswd`.
 - Publicación: usuarios autenticados.
 - Lectura/instalación: pública.
-- Storage persistente: `/srv/scriptorium/verdaccio/storage`.
+- Storage persistente: `/srv/oasis/scriptorium/verdaccio/storage`.
 - Exposición: sin `4873` público al host; el edge compartido de `OASIS_PUB` proxya al alias `scriptorium-verdaccio`.
 
 ## Artefactos

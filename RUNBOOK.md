@@ -7,6 +7,7 @@ Este runbook despliega `ScriptoriumVps` junto al PUB existente sin sustituir `OA
 - `pub.escrivivir.co` sigue servido por `BlockchainComPort/OASIS_PUB/pub-web`.
 - `scriptorium.escrivivir.co`, `admin.scriptorium.escrivivir.co`, `mcp.scriptorium.escrivivir.co` y `npm.scriptorium.escrivivir.co` se añaden al mismo Caddy edge.
 - `ScriptoriumVps` levanta servicios internos sin publicar `1880`, `3003` ni `4873` al host.
+- Los datos persistentes de Scriptorium viven en `/srv/oasis/scriptorium`, dentro del volumen Gandi `scriptorium-oasis-pub-volumen` montado en `/srv/oasis`, no en el disco de arranque `vps-boot`.
 - La comunicación edge → servicios usa `oasis-pub-scriptorium_oasis_pub_net` y aliases:
   - `scriptorium-nodered`
   - `scriptorium-mcp-devops`
@@ -68,15 +69,18 @@ bash scripts/verify.sh
 
 ### Bootstrap Node-RED y paquetes AlephScript
 
-El primer `deploy-local` levanta Node-RED limpio. No instala todavía contribs AlephScript ni depende de `alephscript-mcp-core-sdk-*.tgz`.
+El primer `deploy-local` levanta Node-RED limpio y Verdaccio. No instala todavía contribs AlephScript ni arranca `mcp-devops`.
+
+En `docker-compose.yml`, `mcp-devops` está bajo el profile `mcp` para que no participe en el bootstrap inicial.
 
 La publicación/instalación de paquetes AlephScript se realiza después de verificar que Verdaccio está vivo:
 
 1. comprobar `https://npm.scriptorium.escrivivir.co/-/ping`;
 2. publicar el lote inicial en modo controlado;
-3. reinstalar/reconstruir Node-RED con contribs desde el registry propio si procede.
+3. reinstalar/reconstruir Node-RED con contribs desde el registry propio si procede;
+4. activar `mcp-devops` con `COMPOSE_PROFILES=mcp` cuando `@alephscript/mcp-core-sdk` y `mcp-mesh-sdk` ya estén disponibles desde Verdaccio o normalizados.
 
-Esto evita el ciclo de bootstrap en el que Node-RED necesita paquetes servidos por un Verdaccio que aún no existe.
+Esto evita el ciclo de bootstrap en el que Node-RED o MCP necesitan paquetes servidos por un Verdaccio que aún no existe.
 
 ## Caddy/OASIS_PUB
 
@@ -119,7 +123,7 @@ bash scripts/verify-volumes.sh
 - `admin.scriptorium.escrivivir.co/red/` exige autenticación o responde de forma controlada.
 - `mcp.scriptorium.escrivivir.co/mcp` devuelve `401/403` sin Bearer y `200` con Bearer válido.
 - `npm.scriptorium.escrivivir.co/-/ping` responde.
-- Los volúmenes bajo `/srv/scriptorium` existen y usan UID:GID `1000:1000` salvo decisión distinta.
+- Los volúmenes bajo `/srv/oasis/scriptorium` existen y usan UID:GID `1000:1000` salvo decisión distinta.
 
 ## Rollback mínimo
 

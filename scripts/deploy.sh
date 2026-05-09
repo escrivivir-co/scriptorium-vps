@@ -15,7 +15,7 @@ Comandos seguros:
   preflight       Valida .env, compose config y placeholders; no levanta servicios.
 
 Comandos mutantes (solo dentro del VPS y con aprobación PO justo antes):
-  setup-volumes   Crea/ajusta /srv/scriptorium con UID:GID configurado.
+  setup-volumes   Crea/ajusta ${SCRIPTORIUM_REMOTE_ROOT:-/srv/oasis/scriptorium} con UID:GID configurado.
   deploy-local    Ejecuta docker compose up -d --build.
   restart-local   Reinicia servicios del compose ScriptoriumVps.
   rollback-local  Detiene el compose ScriptoriumVps sin tocar OASIS_PUB.
@@ -72,7 +72,7 @@ Objetivo:
 
 Rutas afectadas:
   - Código: /opt/oasis-scriptorium/ScriptoriumVps
-  - Datos Scriptorium: \${SCRIPTORIUM_REMOTE_ROOT:-/srv/scriptorium}
+  - Datos Scriptorium: \${SCRIPTORIUM_REMOTE_ROOT:-/srv/oasis/scriptorium}
   - Edge existente: BlockchainComPort/OASIS_PUB/caddy/Caddyfile
 
 Comandos previstos dentro del VPS, tras aprobación explícita PO:
@@ -115,7 +115,7 @@ cmd_setup_volumes() {
   assert_confirmed
   SCRIPTORIUM_UID="${SCRIPTORIUM_UID:-1000}" \
   SCRIPTORIUM_GID="${SCRIPTORIUM_GID:-1000}" \
-  SCRIPTORIUM_REMOTE_ROOT="${SCRIPTORIUM_REMOTE_ROOT:-/srv/scriptorium}" \
+  SCRIPTORIUM_REMOTE_ROOT="${SCRIPTORIUM_REMOTE_ROOT:-/srv/oasis/scriptorium}" \
     bash "$ROOT_DIR/scripts/setup-volumenes.sh"
 }
 

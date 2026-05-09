@@ -30,7 +30,7 @@ El plugin `.github/plugins/scriptorium-vps/` describe los agentes operativos que
 - `ARCHIVO/PLUGINS/SCRIPTORIUM_VPS/` → snapshots de deploy, auditoría y plantillas de secretos
 - `ARCHIVO/PLUGINS/MCP_DATA/devops-mcp-server/` → persistencia real del DevOps MCP ya existente
 - `ARCHIVO/PLUGINS/MCP_PRESETS/` → presets/launcher reutilizables por la mesh MCP
-- `/srv/scriptorium/ARCHIVO` y `/srv/scriptorium/ARCHIVO/DISCO` → volúmenes shared del VPS
+- `/srv/oasis/scriptorium/ARCHIVO` y `/srv/oasis/scriptorium/ARCHIVO/DISCO` → volúmenes shared del VPS dentro del volumen de datos `scriptorium-oasis-pub-volumen`
 - `BlockchainComPort/OASIS_PUB/` → edge productivo compartido del MVP (`pub-web`)
 - `BlockchainComPort/GANDI_DEVOPS_FOLDER/` → carpeta segura deny-by-default para SSH, snapshots e inventarios operativos
 

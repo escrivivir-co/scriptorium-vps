@@ -10,8 +10,8 @@ services:
       - "443:443"
     volumes:
       - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
-      - /srv/scriptorium/caddy/data:/data
-      - /srv/scriptorium/caddy/config:/config
+      - ${SCRIPTORIUM_REMOTE_ROOT:-/srv/oasis/scriptorium}/caddy/data:/data
+      - ${SCRIPTORIUM_REMOTE_ROOT:-/srv/oasis/scriptorium}/caddy/config:/config
     depends_on:
       - nodered
       - mcp-devops
@@ -46,8 +46,8 @@ services:
       NODERED_LOG_LEVEL: "${NODERED_LOG_LEVEL:-info}"
     volumes:
       - ../node-red-projects:/data/projects
-      - /srv/scriptorium/ARCHIVO:/data/ARCHIVO
-      - /srv/scriptorium/ARCHIVO/DISCO:/data/ARCHIVO/DISCO
+      - ${SCRIPTORIUM_REMOTE_ROOT:-/srv/oasis/scriptorium}/ARCHIVO:/data/ARCHIVO
+      - ${SCRIPTORIUM_REMOTE_ROOT:-/srv/oasis/scriptorium}/ARCHIVO/DISCO:/data/ARCHIVO/DISCO
       - ./nodered:/opt/aleph/node-red-pattern:ro
     healthcheck:
       test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:1880/red/', (res) => process.exit(res.statusCode < 500 ? 0 : 1)).on('error', () => process.exit(1))\""]
@@ -62,6 +62,7 @@ services:
           - scriptorium-nodered
 
   mcp-devops:
+    profiles: ["mcp"]
     build:
       context: ../..
       dockerfile: ScriptoriumVps/PATTERN-DOCKER/mcp-mesh/Dockerfile
@@ -83,8 +84,8 @@ services:
       DEVOPS_ROOM_PLUGIN_ENABLED: "false"
       XPLUS1_PLUGIN_DISABLED: "true"
     volumes:
-      - /srv/scriptorium/ARCHIVO/PLUGINS/MCP_DATA/devops-mcp-server:/workspace/devops-data
-      - /srv/scriptorium/ARCHIVO/PLUGINS/SCRIPTORIUM_VPS/audit:/workspace/audit
+      - ${SCRIPTORIUM_REMOTE_ROOT:-/srv/oasis/scriptorium}/ARCHIVO/PLUGINS/MCP_DATA/devops-mcp-server:/workspace/devops-data
+      - ${SCRIPTORIUM_REMOTE_ROOT:-/srv/oasis/scriptorium}/ARCHIVO/PLUGINS/SCRIPTORIUM_VPS/audit:/workspace/audit
     healthcheck:
       test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:3003/health').then((res)=>process.exit(res.ok?0:1)).catch(()=>process.exit(1))\""]
       interval: 30s
@@ -107,7 +108,7 @@ services:
       VERDACCIO_PUBLIC_URL: "${VERDACCIO_PUBLIC_URL:-https://npm.scriptorium.escrivivir.co}"
     volumes:
       - ./verdaccio/config.yaml:/verdaccio/conf/config.yaml:ro
-      - /srv/scriptorium/verdaccio/storage:/verdaccio/storage
+      - ${SCRIPTORIUM_REMOTE_ROOT:-/srv/oasis/scriptorium}/verdaccio/storage:/verdaccio/storage
     healthcheck:
       test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:4873/-/ping').then((res)=>process.exit(res.ok?0:1)).catch(()=>process.exit(1))\""]
       interval: 30s
