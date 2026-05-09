@@ -35,10 +35,18 @@ load_env() {
     echo "Ejemplo: NODERED_ADMIN_PASSWORD_BCRYPT='\$2b\$10\$...'"
     exit 1
   fi
+  pre_confirm="${SCRIPTORIUM_DEPLOY_CONFIRM:-}"
+  pre_remote_read="${SCRIPTORIUM_ALLOW_REMOTE_READ:-}"
   set -a
   # shellcheck disable=SC1090
   . "$ENV_FILE"
   set +a
+  if [ -n "$pre_confirm" ]; then
+    SCRIPTORIUM_DEPLOY_CONFIRM="$pre_confirm"
+  fi
+  if [ -n "$pre_remote_read" ]; then
+    SCRIPTORIUM_ALLOW_REMOTE_READ="$pre_remote_read"
+  fi
 }
 
 assert_no_placeholders() {
