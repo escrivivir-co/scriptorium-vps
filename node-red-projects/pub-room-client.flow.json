@@ -1,0 +1,94 @@
+[
+  {
+    "id": "pub-room-client-tab",
+    "type": "tab",
+    "label": "Pub.Rooms Client",
+    "disabled": false,
+    "info": "Flow cliente federado para Pub.Rooms en rooms.scriptorium.escrivivir.co.\n\nVariables requeridas al arranque del Node-RED local:\n  ROOMS_SECRET   — shared secret recibido del owner\n  ROOMS_USER     — nombre de usuario (p.ej. tu-handle)\n  ROOMS_ROOM     — room a la que conectar (por defecto: ROOMS_LAB)\n\nNo metas ROOMS_SECRET en este fichero ni en git."
+  },
+  {
+    "id": "pub-room-core-config",
+    "type": "alephscript-core-config",
+    "name": "Pub.Rooms Server",
+    "serverUrl": "wss://rooms.scriptorium.escrivivir.co",
+    "namespace": "/runtime",
+    "authToken": "",
+    "authRoom": "",
+    "authUser": "",
+    "reconnection": true,
+    "reconnectionAttempts": 10,
+    "reconnectionDelay": 3000,
+    "timeout": 10000
+  },
+  {
+    "id": "pub-room-client-node",
+    "type": "alephscript-core-client",
+    "z": "pub-room-client-tab",
+    "name": "Pub.Rooms Client",
+    "config": "pub-room-core-config",
+    "clientName": "",
+    "session": "",
+    "clientType": "NodeRedMeshClient",
+    "defaultRoom": "ROOMS_LAB",
+    "autoRegister": true,
+    "autoSubscribe": true,
+    "features": "node-red,alephscript-core,mesh-client",
+    "x": 300,
+    "y": 120,
+    "wires": [["pub-room-debug-in"]]
+  },
+  {
+    "id": "pub-room-on-start",
+    "type": "inject",
+    "z": "pub-room-client-tab",
+    "name": "Auto-connect on deploy",
+    "props": [
+      { "p": "payload" },
+      { "p": "topic", "vt": "str" }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": true,
+    "onceDelay": "1",
+    "topic": "CLIENT_REGISTER",
+    "payload": "{\"command\":\"register\"}",
+    "payloadType": "json",
+    "x": 180,
+    "y": 60,
+    "wires": [["pub-room-client-node"]]
+  },
+  {
+    "id": "pub-room-send-message",
+    "type": "inject",
+    "z": "pub-room-client-tab",
+    "name": "Enviar mensaje a ROOMS_LAB",
+    "props": [
+      { "p": "payload" },
+      { "p": "topic", "vt": "str" }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "topic": "ROOMS_LAB_MESSAGE",
+    "payload": "{\"command\":\"room_message\",\"event\":\"PING\",\"data\":{\"msg\":\"hola desde cliente externo\"}}",
+    "payloadType": "json",
+    "x": 200,
+    "y": 200,
+    "wires": [["pub-room-client-node"]]
+  },
+  {
+    "id": "pub-room-debug-in",
+    "type": "debug",
+    "z": "pub-room-client-tab",
+    "name": "Eventos Rooms recibidos",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "x": 560,
+    "y": 120,
+    "wires": []
+  }
+]
