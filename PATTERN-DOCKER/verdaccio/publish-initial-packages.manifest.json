@@ -13,18 +13,44 @@
       "supportFiles": []
     },
     {
+      "id": "core-browser",
+      "workspaceRelativeSource": "MCPGallery/mcp-channels-sdk/ws-server/packages/aleph-script-core-browser",
+      "publishName": "@alephscript/core-browser",
+      "buildCommand": "npm run build",
+      "dependencyOverrides": {
+        "@alephscript/mcp-core-sdk": "^1.5.0"
+      },
+      "smokeFiles": [
+        "dist/index.js"
+      ],
+      "supportFiles": []
+    },
+    {
+      "id": "angular",
+      "workspaceRelativeSource": "MCPGallery/mcp-channels-sdk/ws-server/packages/aleph-script-angular",
+      "publishName": "@alephscript/angular",
+      "buildCommand": "npm run build",
+      "dependencyOverrides": {
+        "@alephscript/core-browser": "^1.2.0"
+      },
+      "smokeFiles": [
+        "dist/index.js"
+      ],
+      "supportFiles": []
+    },
+    {
       "id": "mcp-mesh-sdk",
       "workspaceRelativeSource": "MCPGallery/mcp-mesh-sdk",
       "publishName": "@alephscript/mcp-mesh-sdk",
       "buildCommand": "npm run build",
       "dependencyOverrides": {
-        "@alephscript/mcp-core-sdk": "^1.4.0"
+        "@alephscript/mcp-core-sdk": "^1.5.0"
       },
       "smokeFiles": [
         "dist/index.js"
       ],
       "supportFiles": [
-        "MCPGallery/mcp-core-sdk/alephscript-mcp-core-sdk-1.4.0.tgz"
+        "MCPGallery/mcp-core-sdk/alephscript-mcp-core-sdk-1.5.0.tgz"
       ]
     },
     {
@@ -33,14 +59,14 @@
       "publishName": "node-red-contrib-alephscript",
       "buildCommand": "npm run build:full",
       "dependencyOverrides": {
-        "@alephscript/mcp-core-sdk": "^1.4.0"
+        "@alephscript/mcp-core-sdk": "^1.5.0"
       },
       "smokeFiles": [
         "dist/index.js",
         "dist/nodes/bot-node.js"
       ],
       "supportFiles": [
-        "MCPGallery/mcp-core-sdk/alephscript-mcp-core-sdk-1.4.0.tgz"
+        "MCPGallery/mcp-core-sdk/alephscript-mcp-core-sdk-1.5.0.tgz"
       ]
     },
     {
@@ -49,14 +75,14 @@
       "publishName": "node-red-contrib-alephscript-firehose",
       "buildCommand": "npm run build:full",
       "dependencyOverrides": {
-        "@alephscript/mcp-core-sdk": "^1.4.0"
+        "@alephscript/mcp-core-sdk": "^1.5.0"
       },
       "smokeFiles": [
         "dist/index.js",
         "dist/nodes/firehose-consumer.js"
       ],
       "supportFiles": [
-        "MCPGallery/mcp-core-sdk/alephscript-mcp-core-sdk-1.4.0.tgz"
+        "MCPGallery/mcp-core-sdk/alephscript-mcp-core-sdk-1.5.0.tgz"
       ]
     },
     {
@@ -65,7 +91,7 @@
       "publishName": "node-red-dashboard-2-alephscript-escribiente",
       "buildCommand": "npm run build:full",
       "dependencyOverrides": {
-        "@alephscript/mcp-core-sdk": "^1.4.0"
+        "@alephscript/mcp-core-sdk": "^1.5.0"
       },
       "smokeFiles": [
         "dist/index.js",
@@ -73,7 +99,7 @@
         "resources/escribiente-dashboard-recorder.umd.js"
       ],
       "supportFiles": [
-        "MCPGallery/mcp-core-sdk/alephscript-mcp-core-sdk-1.4.0.tgz"
+        "MCPGallery/mcp-core-sdk/alephscript-mcp-core-sdk-1.5.0.tgz"
       ]
     },
     {
